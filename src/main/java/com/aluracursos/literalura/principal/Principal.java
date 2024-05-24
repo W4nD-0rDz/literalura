@@ -1,15 +1,21 @@
 package com.aluracursos.literalura.principal;
 
-import com.aluracursos.literalura.service.Busca;
+import com.aluracursos.literalura.repository.AutorRepository;
+import com.aluracursos.literalura.repository.LibroRepository;
+import com.aluracursos.literalura.service.Conversa;
+import com.aluracursos.literalura.service.LibroService;
 import com.aluracursos.literalura.service.Muestra;
+import org.springframework.stereotype.Component;
 
 import java.util.Scanner;
 
+@Component
 public class Principal {
-
-    Busca buscador = new Busca();
-    Muestra mostrador = new Muestra();
+    LibroService servicio = new LibroService();
     Scanner input = new Scanner(System.in);
+    private LibroRepository repositorio;
+    private AutorRepository repositori1;
+
 
     String menuDelUsuario = """
             ********************************
@@ -24,6 +30,12 @@ public class Principal {
             *********************************
             """;
 
+    public Principal(LibroService servicio, LibroRepository repository, AutorRepository repository1) {
+        this.servicio = servicio;
+        this.repositorio = repository;
+        this.repositori1 = repository1;
+    }
+
     //Menu del usuario
     public void menu() {
         int option;
@@ -33,19 +45,19 @@ public class Principal {
             option = Integer.parseInt(input.nextLine());
             switch (option) {
                 case 1:
-                    buscador.buscaLibros();
+                    servicio.gestionaBusquedaDeLibroABD();
                     break;
                 case 2:
-                    mostrador.todosLosLibros();
+                    //mostrador.todosLosLibros();
                     break;
                 case 3:
-                    mostrador.todosLosAutores();
+                    //mostrador.todosLosAutores();
                     break;
                 case 4:
-                    mostrador.autoresPorFecha();
+                    //mostrador.autoresPorFecha();
                     break;
                 case 5:
-                    mostrador.librosPorIdioma();
+                    //mostrador.librosPorIdioma();
                     break;
 
                 case 0:
@@ -57,5 +69,4 @@ public class Principal {
             }
         } while (option != 0);
     }
-}
 }
