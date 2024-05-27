@@ -13,6 +13,7 @@ import java.util.Scanner;
 public class Principal {
     LibroService servicio = new LibroService();
     Scanner input = new Scanner(System.in);
+    Muestra mostrador = new Muestra();
     private LibroRepository repositorio;
     private AutorRepository repositori1;
 
@@ -25,15 +26,16 @@ public class Principal {
             2 - Listar libros registrados
             3 - Listar autores registrados
             4 - Listar autores por fecha
-            5 - Listar libros por idioma
+            5 - Listar autores por nombre
             0 - salir
             *********************************
             """;
 
-    public Principal(LibroService servicio, LibroRepository repository, AutorRepository repository1) {
+    public Principal(LibroService servicio, LibroRepository repository, AutorRepository repository1, Muestra muestra) {
         this.servicio = servicio;
         this.repositorio = repository;
         this.repositori1 = repository1;
+        this.mostrador = muestra;
     }
 
     //Menu del usuario
@@ -48,16 +50,16 @@ public class Principal {
                     servicio.gestionaBusquedaDeLibroABD();
                     break;
                 case 2:
-                    //mostrador.todosLosLibros();
+                    mostrador.muestraListaDeLibros();
                     break;
                 case 3:
-                    //mostrador.todosLosAutores();
+                    mostrador.muestraAutores();
                     break;
                 case 4:
-                    //mostrador.autoresPorFecha();
+                    mostrador.muestraAutoresVivosEn();
                     break;
                 case 5:
-                    //mostrador.librosPorIdioma();
+                    mostrador.muestraAutoresPorNombre();
                     break;
 
                 case 0:

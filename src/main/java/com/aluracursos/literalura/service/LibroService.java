@@ -3,12 +3,16 @@ package com.aluracursos.literalura.service;
 import com.aluracursos.literalura.model.*;
 import com.aluracursos.literalura.repository.AutorRepository;
 import com.aluracursos.literalura.repository.LibroRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static java.lang.Integer.parseInt;
 
 @Service
 public class LibroService {
@@ -58,14 +62,14 @@ public class LibroService {
     public DatosLibro eligeLibroDeMapa(Map<Integer, DatosLibro> listaDatosLibros) {
         System.out.println("Elija uno de los siguientes" + listaDatosLibros.size() + "libros");
         mostrador.muestraMapaDatosLibro(listaDatosLibros);
-        Integer respuesta = input.nextInt();
+        Integer respuesta = Integer.parseInt(input.nextLine());
         DatosLibro dl = listaDatosLibros.get(respuesta);
         return dl;
     }
 
     public DatosLibro buscaLibroEnApiPorTitulo() {
         System.out.println("Ingrese una o más palabras del título buscado");
-        String titulo = input.nextLine().replace(" ", "+");
+        String titulo = String.valueOf(input.nextLine()).replace(" ", "+");
         String url = URL_BASE + URL_BUSQUEDA + titulo;
         List<DatosLibro> listaDatosLibro = extraeListaDatosLibro(buscaYConvierteDatos(url));
         if (listaDatosLibro == null || listaDatosLibro.isEmpty()) {
@@ -114,6 +118,12 @@ public class LibroService {
     public void guardaAutor(Autor autor){
         repositorio1.save(autor);
     }
+
+    @Transactional
+    public List<Libro> obtenerTodoLosLIbros(){
+        return repositorio.findAll();
+    }
+
 
 
 

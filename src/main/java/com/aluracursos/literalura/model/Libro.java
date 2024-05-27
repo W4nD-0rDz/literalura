@@ -23,7 +23,7 @@ public class Libro {
     List<String> idiomas;
 
     //@Transient
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "libro_autor",
             joinColumns = @JoinColumn(name = "libro_id"),
@@ -94,13 +94,7 @@ public class Libro {
 
     @Override
     public String toString() {
-        return "Libro{" +
-                "id=" + id +
-                ", numeroID=" + numeroID +
-                ", titulo='" + titulo + '\'' +
-                ", idiomas=" + idiomas +
-                ", autores=" + autores +
-                ", descargas=" + descargas +
-                '}';
+        return "[" + id + "] " + titulo.toUpperCase() + " (" + idiomas.toString() + ") " +
+                "\nAutor(es): " + autores + " - Descargado: " + descargas + " veces";
     }
 }

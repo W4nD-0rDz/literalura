@@ -37,7 +37,7 @@ public class Autor {
                     .orElseThrow(() -> new IllegalArgumentException("El año de nacimiento no puede ser nulo"));
 
             this.deceso = Optional.ofNullable(datosAutor.deceso())
-                    .map(year -> LocalDate.of(datosAutor.deceso(), 1, 1))
+                    .map(year -> LocalDate.of(datosAutor.deceso(), 12, 31))
                     .orElse(LocalDate.now());
 
                 // Corregir fechas si están incorrectamente asignadas
@@ -60,8 +60,17 @@ public class Autor {
         return deceso;
     }
 
+    public int getNacimientoYear() {
+        return nacimiento != null ? nacimiento.getYear() : Integer.MAX_VALUE;
+    }
+
+    public int getDecesoYear() {
+        return deceso != null ? deceso.getYear() : Integer.MIN_VALUE;
+    }
+
+
     @Override
     public String toString() {
-        return nombre + " (" + nacimiento + "-" + deceso + ")";
+        return nombre + " (" + getNacimientoYear() + "-" + getDecesoYear() + ")";
     }
 }

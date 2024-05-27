@@ -11,7 +11,7 @@ public class Conversa {
     public boolean valida(){
         boolean validez = false;
         System.out.print("¿Desea guardar el libro en la base de datos? S/N");
-        var respuesta = input.nextLine();
+        var respuesta = String.valueOf(input.nextLine());
         if(respuesta.equalsIgnoreCase("S")){
             validez = true; return validez;
         } else return validez;
