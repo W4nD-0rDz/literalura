@@ -14,25 +14,25 @@ public class Libro {
     private Long id;
 
     @Column(unique = true)
-    Long numeroID;
+    private Long numeroID;
 
     @Column
-    String titulo;
+    private String titulo;
 
     @Column
-    List<String> idiomas;
+    private Idioma idioma;
 
     //@Transient
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "libro_autor",
             joinColumns = @JoinColumn(name = "libro_id"),
             inverseJoinColumns = @JoinColumn(name = "autor_id")
     )
-    List<Autor> autores;
+    private List<Autor> autores;
 
     @Column
-    Double descargas;
+    private Double descargas;
 
     public Libro() {
     }
@@ -40,7 +40,7 @@ public class Libro {
     public Libro(DatosLibro datosLibro) {
         this.numeroID = datosLibro.numeroID();
         this.titulo = datosLibro.titulo();
-        this.idiomas = datosLibro.idiomas();
+        this.idioma = Idioma.desdeListaIdioma(datosLibro.idiomas());
         this.descargas = datosLibro.descargas();
     }
 
@@ -68,12 +68,12 @@ public class Libro {
         this.titulo = titulo;
     }
 
-    public List<String> getIdiomas() {
-        return idiomas;
+    public Idioma getIdioma() {
+        return idioma;
     }
 
-    public void setIdiomas(List<String> idiomas) {
-        this.idiomas = idiomas;
+    public void setIdioma(Idioma idioma) {
+        this.idioma = idioma;
     }
 
     public List<Autor> getAutores() {
@@ -94,7 +94,9 @@ public class Libro {
 
     @Override
     public String toString() {
-        return "[" + id + "] " + titulo.toUpperCase() + " (" + idiomas.toString() + ") " +
+        return "[" + id + "] " + titulo.toUpperCase() + " (" + idioma.getIdiomaEnEspañol() + ") " +
                 "\nAutor(es): " + autores + " - Descargado: " + descargas + " veces";
     }
+
+
 }

@@ -60,7 +60,7 @@ public class LibroService {
     }
 
     public DatosLibro eligeLibroDeMapa(Map<Integer, DatosLibro> listaDatosLibros) {
-        System.out.println("Elija uno de los siguientes" + listaDatosLibros.size() + "libros");
+        System.out.println("Elija uno de los siguientes " + listaDatosLibros.size() + " libros");
         mostrador.muestraMapaDatosLibro(listaDatosLibros);
         Integer respuesta = Integer.parseInt(input.nextLine());
         DatosLibro dl = listaDatosLibros.get(respuesta);
@@ -122,6 +122,13 @@ public class LibroService {
     @Transactional
     public List<Libro> obtenerTodoLosLIbros(){
         return repositorio.findAll();
+    }
+
+    public List<Libro> buscarLibroPorIdioma(){
+        System.out.println("Ingrese al menos una letra del idioma");
+        String idiomaEnBusca = String.valueOf(input.nextLine());
+        Idioma idiomaBuscado = Idioma.desdeUsuarioEnEspanol(idiomaEnBusca);
+        return repositorio.obtenerLibrosPorIdioma(idiomaBuscado);
     }
 
 

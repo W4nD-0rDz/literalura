@@ -1,5 +1,7 @@
 package com.aluracursos.literalura.model;
 
+import java.util.List;
+
 public enum Idioma {
     AF("af", "Afrikaans", "Afrikáans"),
     ALE("ale", "Aleut", "Aleutiano"),
@@ -79,6 +81,29 @@ public enum Idioma {
         this.idiomaEnIngles = idiomaEnIngles;
         this.idiomaEnEspañol = idiomaEnEspañol;
     }
+
+    public static Idioma desdeListaIdioma(List<String> idiomas) {
+        if (idiomas == null || idiomas.isEmpty()) {
+            throw new IllegalArgumentException("La lista de idiomas está vacía o es nula.");
+        }
+        String primerIdioma = idiomas.get(0);
+        for (Idioma idioma : Idioma.values()) {
+            if (idioma.sigla.equalsIgnoreCase(primerIdioma)) {
+                return idioma;
+            }
+        }
+        throw new IllegalArgumentException("Ningún idioma encontrado para: " + idiomas.toString());
+    }
+
+    public static Idioma desdeUsuarioEnEspanol(String idiomaUsuario){
+        for(Idioma idioma : Idioma.values()){
+            if(idioma.idiomaEnEspañol.equalsIgnoreCase(idiomaUsuario)){
+                return idioma;
+            }
+        }
+        throw new IllegalArgumentException("No existen textos en " + idiomaUsuario + " en la base de datos");
+    }
+
 
     public String getSigla() {
         return sigla;

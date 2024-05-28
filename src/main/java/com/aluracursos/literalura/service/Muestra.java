@@ -53,8 +53,7 @@ public class Muestra {
         });
     }
 
-    public void muestraListaDeLibros() {
-        List<Libro> listaDeLibros = servicio.obtenerTodoLosLIbros();
+    public void muestraListaDeLibros(List<Libro> listaDeLibros) {
         listaDeLibros.stream()
                 .forEach(System.out::println);
     }
@@ -83,6 +82,18 @@ public class Muestra {
             System.out.println(mensajeVacio);
         }
     }
+
+    public void muestraTodosLosLibros(){
+        List<Libro> listaDeLibros = servicio.obtenerTodoLosLIbros();
+        muestraListaDeLibros(listaDeLibros);
+    }
+
+    public void muestraLibrosPorIdioma(){
+        List<Libro>listaDeLibrosPorIdioma = servicio.buscarLibroPorIdioma();
+        muestraListaDeLibros(listaDeLibrosPorIdioma);
+
+    }
+
 
 
 

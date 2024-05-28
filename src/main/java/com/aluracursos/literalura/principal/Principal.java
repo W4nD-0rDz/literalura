@@ -27,6 +27,7 @@ public class Principal {
             3 - Listar autores registrados
             4 - Listar autores por fecha
             5 - Listar autores por nombre
+            6 - Listar libros por idioma
             0 - salir
             *********************************
             """;
@@ -50,7 +51,7 @@ public class Principal {
                     servicio.gestionaBusquedaDeLibroABD();
                     break;
                 case 2:
-                    mostrador.muestraListaDeLibros();
+                    mostrador.muestraTodosLosLibros();
                     break;
                 case 3:
                     mostrador.muestraAutores();
@@ -61,7 +62,9 @@ public class Principal {
                 case 5:
                     mostrador.muestraAutoresPorNombre();
                     break;
-
+                case 6:
+                    mostrador.muestraLibrosPorIdioma();
+                    break;
                 case 0:
                     System.out.println("Hasta pronto. \n¡Gracias por visitar Biblioteca Alura!");
                     break;
