@@ -74,12 +74,12 @@ public enum Idioma {
 
     private final String sigla;
     private final String idiomaEnIngles;
-    private final String idiomaEnEspañol;
+    private final String idiomaEnEspanol;
 
     Idioma(String sigla, String idiomaEnIngles, String idiomaEnEspañol) {
         this.sigla = sigla;
         this.idiomaEnIngles = idiomaEnIngles;
-        this.idiomaEnEspañol = idiomaEnEspañol;
+        this.idiomaEnEspanol = idiomaEnEspañol;
     }
 
     public static Idioma desdeListaIdioma(List<String> idiomas) {
@@ -97,7 +97,7 @@ public enum Idioma {
 
     public static Idioma desdeUsuarioEnEspanol(String idiomaUsuario){
         for(Idioma idioma : Idioma.values()){
-            if(idioma.idiomaEnEspañol.equalsIgnoreCase(idiomaUsuario)){
+            if(idioma.idiomaEnEspanol.equalsIgnoreCase(idiomaUsuario)){
                 return idioma;
             }
         }
@@ -113,7 +113,7 @@ public enum Idioma {
         return idiomaEnIngles;
     }
 
-    public String getIdiomaEnEspañol() {
-        return idiomaEnEspañol;
+    public String getIdiomaEnEspanol() {
+        return idiomaEnEspanol;
     }
 }

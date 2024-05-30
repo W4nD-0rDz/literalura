@@ -3,6 +3,7 @@ package com.aluracursos.literalura.model;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,17 +20,17 @@ public class Libro {
     @Column
     private String titulo;
 
-    @Column
+    @Enumerated(EnumType.STRING)
     private Idioma idioma;
 
     //@Transient
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(
             name = "libro_autor",
             joinColumns = @JoinColumn(name = "libro_id"),
             inverseJoinColumns = @JoinColumn(name = "autor_id")
     )
-    private List<Autor> autores;
+    private List<Autor> autores = new ArrayList<>();
 
     @Column
     private Double descargas;
@@ -94,7 +95,7 @@ public class Libro {
 
     @Override
     public String toString() {
-        return "[" + id + "] " + titulo.toUpperCase() + " (" + idioma.getIdiomaEnEspañol() + ") " +
+        return "[" + id + "] " + titulo.toUpperCase() + " (" + idioma.getIdiomaEnEspanol() + ") " +
                 "\nAutor(es): " + autores + " - Descargado: " + descargas + " veces";
     }
 

@@ -21,7 +21,6 @@ public class AutorService {
         this.repositorio = repositorio;
     }
 
-
     public List<Autor> obtenerTodosLosAutores(){
         return repositorio.findAll();
     }
@@ -40,9 +39,4 @@ public class AutorService {
         List<Autor> autorPorNombre = repositorio.buscarPorNombre(nombreBuscado);
         return autorPorNombre;
     }
-
-
-
-
-
-}
+    }

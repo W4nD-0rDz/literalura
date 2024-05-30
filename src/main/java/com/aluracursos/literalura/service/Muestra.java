@@ -6,6 +6,8 @@ import com.aluracursos.literalura.model.Libro;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -17,45 +19,9 @@ public class Muestra {
     @Autowired
     private AutorService servicio1;
 
-    //Acá van los métodos de impresión por pantalla (los sout)
-    public void muestraLibro(Libro libro) {
-        System.out.println(libro.getTitulo().toUpperCase() + " (de: " + generaStringDeAutores(libro.getAutores()) + ")");
-    }
-
-    public void muestraLibro(DatosLibro datosLibro) {
-        System.out.println(datosLibro.titulo().toUpperCase() + " (de: " + datosLibro.autores() + ")");
-    }
-
-    public String generaStringDeAutores(List<Autor> autores) {
-        StringBuilder stringDeAutores = new StringBuilder();
-        if (autores.size() > 1) {
-            autores.forEach(autor -> stringDeAutores.append(autor.getNombre()).append("; "));
-            // Eliminar la última coma y espacio
-            stringDeAutores.setLength(stringDeAutores.length() - 2);
-        } else if (autores.size() == 1) {
-            stringDeAutores.append(autores.get(0).getNombre());
-        } else {
-            stringDeAutores.append("autor desconocido");
-        }
-        return stringDeAutores.toString();
-    }
-
-
-    public void muestraMapaDatosLibro(Map<Integer, DatosLibro> mapaDeDatosLibro) {
-        mapaDeDatosLibro.forEach((Integer, DatosLibro) ->
-                System.out.println("[" + Integer + "] " + DatosLibro.titulo().toUpperCase() + " - " + DatosLibro.autores()));
-    }
-
-    public void muestraMapa(Map<Integer, Libro> mapaDeLibros) {
-        mapaDeLibros.forEach((index, libro) -> {
-            System.out.print("[" + index + "] ");
-            muestraLibro(libro);
-        });
-    }
-
-    public void muestraListaDeLibros(List<Libro> listaDeLibros) {
-        listaDeLibros.stream()
-                .forEach(System.out::println);
+    public void muestraTodosLosLibros(){
+        List<Libro> listaDeLibros = servicio.obtenerTodosLosLibros();
+        muestraLista(listaDeLibros);
     }
 
     public void muestraAutores() {
@@ -83,15 +49,82 @@ public class Muestra {
         }
     }
 
-    public void muestraTodosLosLibros(){
-        List<Libro> listaDeLibros = servicio.obtenerTodoLosLIbros();
-        muestraListaDeLibros(listaDeLibros);
-    }
+
 
     public void muestraLibrosPorIdioma(){
-        List<Libro>listaDeLibrosPorIdioma = servicio.buscarLibroPorIdioma();
-        muestraListaDeLibros(listaDeLibrosPorIdioma);
+        List<Libro>listaDeLibrosPorIdioma = servicio.buscaLibrosPorIdioma();
+        muestraLista(listaDeLibrosPorIdioma);
 
+    }
+
+    public void muestra10LibrosMasDescargados(){
+        List<Libro>listaLibrosMasDescargados = servicio.librosMasDescargados();
+        muestraLista(listaLibrosMasDescargados);
+    }
+
+    public void muestraLibrosPorAutor(){
+        List<Libro>listaDeLibrosPorAutor = servicio.buscaLibrosPorAutor();
+        muestraLista(listaDeLibrosPorAutor);
+    }
+
+
+    //Acá van los métodos de impresión por pantalla (los sout)
+    public void muestraLibro(Libro libro) {
+        System.out.println(libro.getTitulo().toUpperCase() + " (de: " + generaStringDeAutores(libro.getAutores()) + ")");
+    }
+
+    public void muestraLibro(DatosLibro datosLibro) {
+        System.out.println(datosLibro.titulo().toUpperCase() + " (de: " + datosLibro.autores() + ")");
+    }
+
+    public String generaStringDeAutores(List<Autor> autores) {
+        StringBuilder stringDeAutores = new StringBuilder();
+        if (autores.size() > 1) {
+            autores.forEach(autor -> stringDeAutores.append(autor.getNombre()).append("; "));
+            // Borra el último punto y coma y el espacio
+            stringDeAutores.setLength(stringDeAutores.length() - 2);
+        } else if (autores.size() == 1) {
+            stringDeAutores.append(autores.get(0).getNombre());
+        } else {
+            stringDeAutores.append("autor desconocido");
+        }
+        return stringDeAutores.toString();
+    }
+
+
+    public void muestraMapaDatosLibro(Map<Integer, DatosLibro> mapaDeDatosLibro) {
+        mapaDeDatosLibro.forEach((Integer, DatosLibro) ->
+                System.out.println("[" + Integer + "] " + DatosLibro.titulo().toUpperCase() + " - " + DatosLibro.autores()));
+    }
+
+    public void muestraMapa(Map<Integer, Libro> mapaDeLibros) {
+        mapaDeLibros.forEach((index, libro) -> {
+            System.out.print("[" + index + "] ");
+            muestraLibro(libro);
+        });
+    }
+
+    public <T> void muestraLista(List<T> lista) {
+        lista.stream()
+                .forEach(System.out::println);
+    }
+
+
+    //Este método muestra el contenido de mapas
+    public <T> void muestraGenerico(Map<Integer, T> mapa) {
+        for (Map.Entry<Integer, T> entrada : mapa.entrySet()) {
+            Integer indice = entrada.getKey();
+            T valor = entrada.getValue();
+            String info;
+            if (valor instanceof String[]) {
+                String[] dato = (String[]) valor;
+                info = Arrays.toString(dato);
+            } else {
+                info = valor.toString();
+            }
+            System.out.println(indice + " - " + info);
+        }
+        System.out.println(" ");
     }
 
 

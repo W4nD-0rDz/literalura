@@ -17,4 +17,16 @@ public interface LibroRepository extends JpaRepository<Libro, Long> {
 
 @Query("SELECT l FROM Libro l WHERE l.idioma = :idiomaBuscado ORDER BY l.descargas DESC")
     List<Libro> obtenerLibrosPorIdioma(@Param("idiomaBuscado")Idioma idioma);
+
+@Query("SELECT l FROM Libro l ORDER BY l.descargas DESC LIMIT 10")
+    List<Libro> top10Libros();
+
+    @Query("SELECT l FROM Libro l JOIN l.autores a WHERE a.nombre = :nombreAutor")
+    List<Libro> obtenerLibrosPorAutor(@Param("nombreAutor") String nombreAutor);
+
+    Optional<Libro> findByNumeroID(Long numeroID);
+
+    Optional<Libro> findByTitulo(String titulo);
+
+
 }
