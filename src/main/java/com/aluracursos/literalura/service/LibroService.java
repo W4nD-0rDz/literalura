@@ -25,7 +25,6 @@ public class LibroService {
     private ConvierteDatos conversor = new ConvierteDatos();
     private final Scanner input = new Scanner(System.in);
     private Muestra mostrador = new Muestra();
-    private Conversa conversador = new Conversa();
 
     private Datos datos;
     private DatosLibro datosLibro;
@@ -56,9 +55,11 @@ public class LibroService {
                 throw new RuntimeException("No se encontraron registros.");
             }
         } catch (IllegalArgumentException e) {
-            System.out.println("La consulta no ha devuelto resultados. Error: " + e.getMessage());
+            System.out.println("La consulta no ha devuelto resultados * . " + e.getMessage());
+            System.out.println("");
         } catch (RuntimeException e) {
-            System.out.println("La consulta no ha devuelto los resultados esperados. Error: " + e.getMessage());
+            System.out.println("La consulta no ha devuelto resultados.");
+            System.out.println("");
         }
         return Collections.emptyList(); // Retorna una lista vacía en lugar de null
     }
@@ -73,68 +74,103 @@ public class LibroService {
     }
 
     public DatosLibro eligeLibroDeMapa(Map<Integer, DatosLibro> listaDatosLibros) {
-        System.out.println("Elija uno de los siguientes " + listaDatosLibros.size() + " libros");
+        System.out.println("Elija uno de los siguientes " + listaDatosLibros.size() + " libros." +
+                "\nEn caso que no se encuentre el libro buscado, elija 0.");
         mostrador.muestraMapaDatosLibro(listaDatosLibros);
         Integer respuesta = Integer.parseInt(input.nextLine());
-        datosLibro = listaDatosLibros.get(respuesta);
-        return datosLibro;
+
+        if (respuesta > 0 && respuesta <= listaDatosLibros.size()) {
+            return listaDatosLibros.get(respuesta);
+        } else {
+            // Si la respuesta está fuera del rango, devuelve un DatosLibro vacío
+            return listaDatosLibros.get(0);
+        }
     }
 
     public void buscaLibroEnApiPorTitulo() {
-        try {
-            System.out.println("Ingrese una o más palabras del título buscado");
-            String titulo = String.valueOf(input.nextLine()).replace(" ", "+");
-            String url = URL_BASE + URL_BUSQUEDA + titulo;
-            List<DatosLibro> listaDatosLibro = extraeListaDatosLibro(buscaYConvierteDatos(url));
-            if (listaDatosLibro == null || listaDatosLibro.isEmpty()) {
-                throw new IllegalArgumentException("La lista de libros no puede estar vacía");
-            } else if (listaDatosLibro.size() > 1) {
-                Map<Integer, DatosLibro> listaDeDatosLibros = convertirListaAMapa(listaDatosLibro);
-                datosLibro = eligeLibroDeMapa(listaDeDatosLibros);
-            } else {
-                mostrador.muestraLibro(listaDatosLibro.get(0));
-                datosLibro = listaDatosLibro.get(0);
+        int intentos = 0;
+        boolean libroEncontrado = false;
+
+        while (!libroEncontrado && intentos < 3) {
+            try {
+                System.out.println("Ingrese una o más palabras del título buscado");
+                String titulo = input.nextLine().replace(" ", "+");
+                String url = URL_BASE + URL_BUSQUEDA + titulo;
+                List<DatosLibro> listaDatosLibro = extraeListaDatosLibro(buscaYConvierteDatos(url));
+
+                if (listaDatosLibro == null || listaDatosLibro.isEmpty()) {
+                    System.out.println("La consulta no ha devuelto resultados. Intente nuevamente.");
+                } else if (listaDatosLibro.size() > 1) {
+                    Map<Integer, DatosLibro> listaDeDatosLibros = convertirListaAMapa(listaDatosLibro);
+                    datosLibro = eligeLibroDeMapa(listaDeDatosLibros);
+
+                    if (datosLibro == null || datosLibro.titulo() == null || datosLibro.titulo().isEmpty()) {
+                        System.out.println("La selección no es válida. Por favor, intente nuevamente.");
+                    } else {
+                        libroEncontrado = true;
+                    }
+                } else {
+                    mostrador.muestraLibro(listaDatosLibro.get(0));
+                    datosLibro = listaDatosLibro.get(0);
+                    libroEncontrado = true;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Error: Entrada no válida. Por favor, ingrese un número.");
+//            } catch (IllegalArgumentException e) {
+//                System.out.println("La consulta no ha devuelto resultados. \nIntente nuevamente.");
+//                System.out.println("");
+            } catch (RuntimeException e) {
+                System.out.println("La consulta no ha devuelto los resultados esperados.");
+                System.out.println("");
+            } catch (Exception e) {
+                System.out.println("Error general del sistema: " + e);
+                e.printStackTrace();
             }
-        } catch (IllegalArgumentException e) {
-            System.out.println("La consulta no ha devuelto resultados. Error: " + e.getMessage());
-        } catch (RuntimeException e) {
-            System.out.println("La consulta no ha devuelto los resultados esperados. Error: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("Error general del sistema: " + e.getMessage());
+            intentos++;
+            if (intentos == 3 && !libroEncontrado) {
+                System.out.println("Demasiados intentos fallidos. Vuelva a intentar más tarde.");
+            }
         }
     }
-@Transactional
+
+    @Transactional()
     public void gestionaBusquedaDeLibroABaseDeDatos() {
         try {
             buscaLibroEnApiPorTitulo();
             if (datosLibro != null) {
                 Libro libro = new Libro(datosLibro);
-                List<Autor> autores = new ArrayList<>();
-                for (DatosAutor datosAutor : datosLibro.autores()) {
-                    Autor autor = new Autor(datosAutor);
-                    Optional<Autor> autorExistente = validaAutor(autor);
-                    if (autorExistente.isPresent()) {
-                        autores.add(autorExistente.get());
-                        System.out.println("Autor existente en Base de Datos");
-                    } else {
-                        repositorio1.save(autor);
-                        autores.add(autor);
-                    }
-                }
+                List<Autor> autores = armaListaAutores();
                 libro.setAutores(autores);
                 repositorio.save(libro);
             }
         } catch (DataIntegrityViolationException e) {
-            System.out.println("Error de integridad de datos: " + e.getMessage());
+            System.out.println("Error de integridad de datos al guardar el libro: " + e.getMessage());
+            e.printStackTrace(); // Agrega esta línea para imprimir la traza completa de la excepción
         } catch (Exception e) {
-            System.out.println("Error inesperado: " + e.getMessage());
+            System.out.println("Error inesperado al procesar el libro: " + e.getMessage());
+            e.printStackTrace(); // Agrega esta línea para imprimir la traza completa de la excepción
         }
+    }
+
+    public List<Autor> armaListaAutores(){
+        List<Autor> autores = new ArrayList<>();
+        for (DatosAutor datosAutor : datosLibro.autores()) {
+            Autor autor = new Autor(datosAutor);
+            Optional<Autor> autorExistente = validaAutor(autor);
+            if (autorExistente.isPresent()) {
+                autores.add(autorExistente.get());
+                System.out.println("Autor existente en Base de Datos");
+            } else {
+                repositorio1.save(autor);
+                autores.add(autor);
+            }
+        }
+        return autores;
     }
 
     public Optional<Autor> validaAutor(Autor autorAValidar) {
         return repositorio1.findByNombreAndNacimientoAndDeceso(autorAValidar.getNombre(), autorAValidar.getNacimiento(), autorAValidar.getDeceso());
     }
-
 
     public List<Libro> obtenerTodosLosLibros() {
         return repositorio.findAll();

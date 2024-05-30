@@ -30,7 +30,7 @@ public class Principal {
             6 - Listar libros por idioma
             7 - Listar libros más descargados
             8 - Listar libros por autor
-            
+                        
             0 - salir
             *********************************
             """;
@@ -44,42 +44,47 @@ public class Principal {
 
     //Menu del usuario
     public void menu() {
-        int option;
+        int option = -1;
         do {
-            System.out.println(menuDelUsuario);
-            System.out.print("Por favor, seleccione una acción a realizar: ");
-            option = Integer.parseInt(input.nextLine());
-            switch (option) {
-                case 1:
-                    servicio.gestionaBusquedaDeLibroABaseDeDatos();
-                    break;
-                case 2:
-                    mostrador.muestraTodosLosLibros();
-                    break;
-                case 3:
-                    mostrador.muestraAutores();
-                    break;
-                case 4:
-                    mostrador.muestraAutoresVivosEn();
-                    break;
-                case 5:
-                    mostrador.muestraAutoresPorNombre();
-                    break;
-                case 6:
-                    mostrador.muestraLibrosPorIdioma();
-                    break;
-                case 7:
-                    mostrador.muestra10LibrosMasDescargados();
-                    break;
-                case 8:
-                    mostrador.muestraLibrosPorAutor();
-                    break;
-                case 0:
-                    System.out.println("Hasta pronto. \n¡Gracias por visitar Biblioteca Alura!");
-                    break;
-                default:
-                    System.out.println("Elija una opción válida");
-                    break;
+            try {
+                System.out.println(menuDelUsuario);
+                System.out.print("Por favor, seleccione una acción a realizar: ");
+                option = Integer.parseInt(input.nextLine());
+                switch (option) {
+                    case 1:
+                        servicio.gestionaBusquedaDeLibroABaseDeDatos();
+                        break;
+                    case 2:
+                        mostrador.muestraTodosLosLibros();
+                        break;
+                    case 3:
+                        mostrador.muestraAutores();
+                        break;
+                    case 4:
+                        mostrador.muestraAutoresVivosEn();
+                        break;
+                    case 5:
+                        mostrador.muestraAutoresPorNombre();
+                        break;
+                    case 6:
+                        mostrador.muestraLibrosPorIdioma();
+                        break;
+                    case 7:
+                        mostrador.muestra10LibrosMasDescargados();
+                        break;
+                    case 8:
+                        mostrador.muestraLibrosPorAutor();
+                        break;
+                    case 0:
+                        System.out.println("Hasta pronto. \n¡Gracias por visitar Biblioteca Alura!");
+                        break;
+                    default:
+                        System.out.println("Elija una opción válida");
+                        break;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Error. El valor ingresado es incorrecto." +
+                        "\nPor favor intente nuevamente.");
             }
         } while (option != 0);
     }
