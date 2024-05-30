@@ -12,7 +12,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-
 @Service
 public class LibroService {
 
@@ -28,18 +27,14 @@ public class LibroService {
 
     private Datos datos;
     private DatosLibro datosLibro;
-
-    private final String URL_BASE = "https://gutendex.com/books/";
-    private final String URL_BASE_PAGE = "?page=";
-    private final String URL_COPYRIGHT = "?copyright=true,false";
-    private final String URL_BUSQUEDA = "?search=";
-    private final String URL_TOPIC = "?topic=";
-
     private List<DatosLibro> listaDeDatosLibro = new ArrayList<>();
 
+    private final String URL_BASE = "https://gutendex.com/books/";
+    private final String URL_BUSQUEDA = "?search=";
+
     //Acá van los métodos de búsqueda en gutendex y persistencia de libros y sus autores en la base de datos
-    //Se puede intentar un switch de modos de búsqueda:
-    // (por título, por autor, titulo y autor (search), por copyright, por tema, por idioma)
+
+    //Extracción y conversión de datos
     public Datos buscaYConvierteDatos(String url) {
         var json = consumidor.obtenerDatos(url);
         datos = conversor.obtenerDatos(json, Datos.class);
@@ -48,9 +43,9 @@ public class LibroService {
 
     public List<DatosLibro> extraeListaDatosLibro(Datos datos) {
         try {
-            List<DatosLibro> listaDatosLibro = datos.resultados();
+            listaDeDatosLibro = datos.resultados();
             if (datos.cantidadDeRegistros() >= 1) {
-                return listaDatosLibro;
+                return listaDeDatosLibro;
             } else {
                 throw new RuntimeException("No se encontraron registros.");
             }
@@ -62,6 +57,65 @@ public class LibroService {
             System.out.println("");
         }
         return Collections.emptyList(); // Retorna una lista vacía en lugar de null
+    }
+
+    //Opción 1 - Consulta a la API y gestiona la persistencia del libro y autor(es) en la BD
+    @Transactional()
+    public void gestionaBusquedaDeLibroABaseDeDatos() {
+        try {
+            buscaLibroEnApiPorTitulo();
+            Optional.ofNullable(datosLibro)
+                    .map(Libro::new)
+                    .ifPresent(libro -> {
+                        libro.setAutores(armaListaAutores());
+                        repositorio.save(libro);
+                    });
+        } catch (DataIntegrityViolationException e) {
+            System.out.println("Error de integridad de datos al guardar el libro: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error inesperado al procesar el libro: " + e.getMessage());
+        }
+    }
+
+    public void buscaLibroEnApiPorTitulo() {
+        int intentos = 0;
+        boolean libroEncontrado = false;
+
+        while (!libroEncontrado && intentos < 3) {
+            try {
+                System.out.println("Ingrese una o más palabras del título buscado");
+                String titulo = input.nextLine().replace(" ", "+");
+                String url = URL_BASE + URL_BUSQUEDA + titulo;
+                List<DatosLibro> listaDatosLibro = extraeListaDatosLibro(buscaYConvierteDatos(url));
+
+                if (listaDatosLibro == null || listaDatosLibro.isEmpty()) {
+                    System.out.println("La consulta no ha devuelto resultados. Intente nuevamente.");
+                } else if (listaDatosLibro.size() > 1) {
+                    Map<Integer, DatosLibro> listaDeDatosLibros = convertirListaAMapa(listaDatosLibro);
+                    datosLibro = eligeLibroDeMapa(listaDeDatosLibros);
+                    libroEncontrado = datosLibro != null && datosLibro.titulo() != null && !datosLibro.titulo().isEmpty();
+                    if (!libroEncontrado) {
+                        System.out.println("La selección no es válida. Por favor, intente nuevamente.");
+                    }
+                } else {
+                    mostrador.muestraLibro(listaDatosLibro.get(0));
+                    datosLibro = listaDatosLibro.get(0);
+                    libroEncontrado = true;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Error: Entrada no válida. Por favor, ingrese un número.");
+            } catch (RuntimeException e) {
+                System.out.println("La consulta no ha devuelto los resultados esperados.");
+                System.out.println("");
+            } catch (Exception e) {
+                System.out.println("Error general del sistema: " + e);
+                e.printStackTrace();
+            }
+            intentos++;
+            if (intentos == 3 && !libroEncontrado) {
+                System.out.println("Demasiados intentos fallidos. Vuelva a intentar más tarde.");
+            }
+        }
     }
 
     public static Map<Integer, DatosLibro> convertirListaAMapa(List<DatosLibro> datosLibros) {
@@ -82,77 +136,12 @@ public class LibroService {
         if (respuesta > 0 && respuesta <= listaDatosLibros.size()) {
             return listaDatosLibros.get(respuesta);
         } else {
-            // Si la respuesta está fuera del rango, devuelve un DatosLibro vacío
+            // Si la respuesta está fuera del rango Integer de la respuesta, devuelve un DatosLibro vacío
             return listaDatosLibros.get(0);
         }
     }
 
-    public void buscaLibroEnApiPorTitulo() {
-        int intentos = 0;
-        boolean libroEncontrado = false;
-
-        while (!libroEncontrado && intentos < 3) {
-            try {
-                System.out.println("Ingrese una o más palabras del título buscado");
-                String titulo = input.nextLine().replace(" ", "+");
-                String url = URL_BASE + URL_BUSQUEDA + titulo;
-                List<DatosLibro> listaDatosLibro = extraeListaDatosLibro(buscaYConvierteDatos(url));
-
-                if (listaDatosLibro == null || listaDatosLibro.isEmpty()) {
-                    System.out.println("La consulta no ha devuelto resultados. Intente nuevamente.");
-                } else if (listaDatosLibro.size() > 1) {
-                    Map<Integer, DatosLibro> listaDeDatosLibros = convertirListaAMapa(listaDatosLibro);
-                    datosLibro = eligeLibroDeMapa(listaDeDatosLibros);
-
-                    if (datosLibro == null || datosLibro.titulo() == null || datosLibro.titulo().isEmpty()) {
-                        System.out.println("La selección no es válida. Por favor, intente nuevamente.");
-                    } else {
-                        libroEncontrado = true;
-                    }
-                } else {
-                    mostrador.muestraLibro(listaDatosLibro.get(0));
-                    datosLibro = listaDatosLibro.get(0);
-                    libroEncontrado = true;
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Error: Entrada no válida. Por favor, ingrese un número.");
-//            } catch (IllegalArgumentException e) {
-//                System.out.println("La consulta no ha devuelto resultados. \nIntente nuevamente.");
-//                System.out.println("");
-            } catch (RuntimeException e) {
-                System.out.println("La consulta no ha devuelto los resultados esperados.");
-                System.out.println("");
-            } catch (Exception e) {
-                System.out.println("Error general del sistema: " + e);
-                e.printStackTrace();
-            }
-            intentos++;
-            if (intentos == 3 && !libroEncontrado) {
-                System.out.println("Demasiados intentos fallidos. Vuelva a intentar más tarde.");
-            }
-        }
-    }
-
-    @Transactional()
-    public void gestionaBusquedaDeLibroABaseDeDatos() {
-        try {
-            buscaLibroEnApiPorTitulo();
-            if (datosLibro != null) {
-                Libro libro = new Libro(datosLibro);
-                List<Autor> autores = armaListaAutores();
-                libro.setAutores(autores);
-                repositorio.save(libro);
-            }
-        } catch (DataIntegrityViolationException e) {
-            System.out.println("Error de integridad de datos al guardar el libro: " + e.getMessage());
-            e.printStackTrace(); // Agrega esta línea para imprimir la traza completa de la excepción
-        } catch (Exception e) {
-            System.out.println("Error inesperado al procesar el libro: " + e.getMessage());
-            e.printStackTrace(); // Agrega esta línea para imprimir la traza completa de la excepción
-        }
-    }
-
-    public List<Autor> armaListaAutores(){
+    public List<Autor> armaListaAutores() {
         List<Autor> autores = new ArrayList<>();
         for (DatosAutor datosAutor : datosLibro.autores()) {
             Autor autor = new Autor(datosAutor);
@@ -169,54 +158,68 @@ public class LibroService {
     }
 
     public Optional<Autor> validaAutor(Autor autorAValidar) {
-        return repositorio1.findByNombreAndNacimientoAndDeceso(autorAValidar.getNombre(), autorAValidar.getNacimiento(), autorAValidar.getDeceso());
+        return repositorio1.findByNombreAndNacimientoAndDeceso(
+                autorAValidar.getNombre(), autorAValidar.getNacimiento(), autorAValidar.getDeceso());
     }
 
+    //Opción 2 - arma la lista de todos los libros de la BD
     public List<Libro> obtenerTodosLosLibros() {
-        return repositorio.findAll();
+        List<Libro> todosLosLibros = repositorio.findAll();
+        if (todosLosLibros.isEmpty()) {
+            System.out.println("La base de datos está vacía");
+            return todosLosLibros;
+        } else {
+            return todosLosLibros;
+        }
+    }
+
+    //Opción 6 - filtra libros por idioma
+    public List<Libro> buscaLibrosPorIdioma() {
+        return repositorio.obtenerLibrosPorIdioma(selectorDeIdioma());
     }
 
     public Map<Integer, String[]> mapeaIdiomas() {
         Map<Integer, String[]> mapaDeIdiomas = new HashMap<>();
         do {
             System.out.println("Ingrese al menos una letra del idioma");
-            String idiomaABuscar = String.valueOf(input.nextLine());
-            int indice = 1;
-            for (Idioma idioma : Idioma.values()) {
-                if (idioma.getIdiomaEnEspanol().toLowerCase().contains(idiomaABuscar.toLowerCase())
-                        || idioma.getIdiomaEnIngles().toLowerCase().contains(idiomaABuscar.toLowerCase())
-
-                        || idioma.getSigla().toLowerCase().contains(idiomaABuscar.toLowerCase())) {
-                    String[] infoIdioma = {
-                            idioma.getSigla(), idioma.getIdiomaEnEspanol(), idioma.getIdiomaEnIngles()};
-                    mapaDeIdiomas.put(indice, infoIdioma);
-                    indice++;
-                }
-            }
+            String idiomaABuscar = String.valueOf(input.nextLine()).toLowerCase();
+            mapaDeIdiomas = IntStream.range(0, Idioma.values().length)
+                    .filter(i -> {
+                        Idioma idioma = Idioma.values()[i];
+                        return idioma.getIdiomaEnEspanol().toLowerCase().contains(idiomaABuscar)
+                                || idioma.getIdiomaEnIngles().toLowerCase().contains(idiomaABuscar)
+                                || idioma.getSigla().toLowerCase().contains(idiomaABuscar);
+                    })
+                    .boxed()
+                    .collect(Collectors.toMap(
+                            i -> i + 1,
+                            i -> {
+                                Idioma idioma = Idioma.values()[i];
+                                return new String[]{idioma.getSigla(), idioma.getIdiomaEnEspanol()};
+                            }
+                    ));
             if (mapaDeIdiomas.isEmpty()) {
-                System.out.println("Disculpe, no se ha encontrado el idioma." +
-                        "\nIntente nuevamente.");
+                System.out.println("Disculpe, no se ha encontrado el idioma." + "\nIntente nuevamente.");
             }
         } while (mapaDeIdiomas.isEmpty());
         return mapaDeIdiomas;
     }
 
     public Idioma selectorDeIdioma() {
-        Integer indice;
-        Map<Integer, String[]> mapaIdiomas;
         Idioma idioma = null;
         try {
             do {
-                mapaIdiomas = mapeaIdiomas();
+                Map<Integer, String[]> mapaIdiomas = mapeaIdiomas();
                 System.out.println("Lista de idiomas que coinciden con las letras ingresadas");
                 mostrador.muestraGenerico(mapaIdiomas);
                 System.out.println("Elija el código de la divisa en la lista. Si no se encuentra presione 0");
-                indice = Integer.parseInt(input.nextLine());
+                Integer indice = Integer.parseInt(input.nextLine());
                 if (indice != 0) {
-                    String[] infoIdioma = mapaIdiomas.get(indice);
-                    idioma = Idioma.desdeUsuarioEnEspanol(infoIdioma[1]);
+                    idioma = Optional.ofNullable(mapaIdiomas.get(indice))
+                            .map(info -> Idioma.desdeUsuarioEnEspanol(info[1]))
+                            .orElse(null);
                 }
-            } while (mapaIdiomas.isEmpty() || idioma == null);
+            } while (idioma == null);
         } catch (NumberFormatException e) {
             System.out.println("Por favor ingrese el código de la divisa de su elección." +
                     "\nSi no la encuentra presione 0.");
@@ -227,15 +230,14 @@ public class LibroService {
         return idioma;
     }
 
-    public List<Libro> buscaLibrosPorIdioma() {
-        Idioma idioma = selectorDeIdioma();
-        List<Libro> listaDeLibrosPorIdioma = repositorio.obtenerLibrosPorIdioma(idioma);
-        return listaDeLibrosPorIdioma;
+    //Opción 7 - lista los 10 libros con mayor cantidad de descargas
+    public List<Libro> librosMasDescargados() {
+       return repositorio.top10Libros();
     }
 
-    public List<Libro> librosMasDescargados() {
-        List<Libro> top10Libros = repositorio.top10Libros();
-        return top10Libros;
+    //Opción 8 - Filtra libros por autor
+    public List<Libro> buscaLibrosPorAutor() {
+       return repositorio.obtenerLibrosPorAutor(selectorDeAutor());
     }
 
     public Map<Integer, String> mapeaAutores() {
@@ -244,18 +246,15 @@ public class LibroService {
         do {
             System.out.println("Ingrese al menos una letra del nombre del autor");
             String letrasDelNombre = String.valueOf(input.nextLine()).toLowerCase();
-            int indice = 1;
+            mapaDeAutores = IntStream.range(0,listaDeAutores.size())
+                    .filter(i -> listaDeAutores.get(i).getNombre().toLowerCase().contains(letrasDelNombre))
+                    .boxed()
+                    .collect(Collectors.toMap(
+                            i -> i + 1,
+                            i -> listaDeAutores.get(i).getNombre()));
 
-            for (Autor autor : listaDeAutores) {
-                if (autor.getNombre().toLowerCase().contains(letrasDelNombre)) {
-                    String nombres = autor.getNombre();
-                    mapaDeAutores.put(indice, nombres);
-                    indice++;
-                }
-            }
             if (mapaDeAutores.isEmpty()) {
-                System.out.println("Disculpe, no se han encontrado autores." +
-                        "\nIntente nuevamente.");
+                System.out.println("Disculpe, no se han encontrado autores.\nIntente nuevamente.");
             }
         } while (mapaDeAutores.isEmpty());
         return mapaDeAutores;
@@ -263,31 +262,22 @@ public class LibroService {
 
     public String selectorDeAutor() {
         String nombreAutor = null;
-        Map<Integer, String> mapaAutores;
-        int indice;
         do {
-            mapaAutores = mapeaAutores();
+            Map<Integer, String> mapaAutores = mapeaAutores();
             System.out.println("Lista de autores que coinciden con las letras ingresadas");
             mostrador.muestraGenerico(mapaAutores);
             System.out.println("Elija el código de un autor de la lista. Si no se encuentra presione 0");
-
             try {
-                indice = Integer.parseInt(input.nextLine());
-                if (indice != 0) {
-                    nombreAutor = mapaAutores.get(indice);
-                } else {
-                    System.out.println("Índice no válido. Intente nuevamente.");
-                }
+                int indice = Integer.parseInt(input.nextLine());
+                nombreAutor = Optional.ofNullable(mapaAutores.get(indice))
+                        .orElseGet(() -> {
+                            System.out.println("El valor " + indice + " no es válido. Intente nuevamente.");
+                            return null;
+                        });
             } catch (NumberFormatException e) {
                 System.out.println("Por favor ingrese un número válido");
             }
         } while (nombreAutor == null);
         return nombreAutor;
-    }
-
-    public List<Libro> buscaLibrosPorAutor() {
-        String nombreAutor = selectorDeAutor();
-        List<Libro> listaLibrosPorAutor = repositorio.obtenerLibrosPorAutor(nombreAutor);
-        return listaLibrosPorAutor;
     }
 }

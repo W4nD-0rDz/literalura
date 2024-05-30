@@ -14,9 +14,7 @@ public class LiteraluraApplication implements CommandLineRunner {
 	private Principal principal;
 
 	public static void main(String[] args) {
-
 		SpringApplication.run(LiteraluraApplication.class, args);
-		System.out.println("Hola Mundo desde Spring!");
 	}
 
 	@Override

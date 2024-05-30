@@ -1,11 +1,9 @@
 package com.aluracursos.literalura.model;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Entity
 @Table(name = "libros")
@@ -98,6 +96,4 @@ public class Libro {
         return "[" + id + "] " + titulo.toUpperCase() + " (" + idioma.getIdiomaEnEspanol() + ") " +
                 "\nAutor(es): " + autores + " - Descargado: " + descargas + " veces";
     }
-
-
 }

@@ -5,10 +5,7 @@ import com.aluracursos.literalura.model.DatosLibro;
 import com.aluracursos.literalura.model.Libro;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -20,23 +17,19 @@ public class Muestra {
     private AutorService servicio1;
 
     public void muestraTodosLosLibros(){
-        List<Libro> listaDeLibros = servicio.obtenerTodosLosLibros();
-        muestraLista(listaDeLibros);
+        muestraLista(servicio.obtenerTodosLosLibros());
     }
 
     public void muestraAutores() {
-        List<Autor> autores = servicio1.obtenerTodosLosAutores();
-        mostrarAutores(autores, "No hay autores listados en la base de datos");
+        mostrarAutores(servicio1.obtenerTodosLosAutores(), "No hay autores listados en la base de datos");
     }
 
     public void muestraAutoresVivosEn() {
-        List<Autor> autores = servicio1.listarAutoresVivosEn();
-        mostrarAutores(autores, "La base de datos no cuenta con autores para ese periodo");
+        mostrarAutores(servicio1.listarAutoresVivosEn(), "La base de datos no cuenta con autores para ese periodo");
     }
 
     public void muestraAutoresPorNombre(){
-        List<Autor> autores = servicio1.buscarAutorPorNombre();
-        mostrarAutores(autores, "No hay autores con ese nombre");
+        mostrarAutores(servicio1.buscarAutorPorNombre(), "No hay autores con ese nombre");
     }
 
     private void mostrarAutores(List<Autor> autores, String mensajeVacio) {
@@ -49,24 +42,17 @@ public class Muestra {
         }
     }
 
-
-
     public void muestraLibrosPorIdioma(){
-        List<Libro>listaDeLibrosPorIdioma = servicio.buscaLibrosPorIdioma();
-        muestraLista(listaDeLibrosPorIdioma);
-
+        muestraLista(servicio.buscaLibrosPorIdioma());
     }
 
     public void muestra10LibrosMasDescargados(){
-        List<Libro>listaLibrosMasDescargados = servicio.librosMasDescargados();
-        muestraLista(listaLibrosMasDescargados);
+        muestraLista(servicio.librosMasDescargados());
     }
 
     public void muestraLibrosPorAutor(){
-        List<Libro>listaDeLibrosPorAutor = servicio.buscaLibrosPorAutor();
-        muestraLista(listaDeLibrosPorAutor);
+        muestraLista(servicio.buscaLibrosPorAutor());
     }
-
 
     //Acá van los métodos de impresión por pantalla (los sout)
     public void muestraLibro(Libro libro) {
@@ -91,24 +77,15 @@ public class Muestra {
         return stringDeAutores.toString();
     }
 
-
     public void muestraMapaDatosLibro(Map<Integer, DatosLibro> mapaDeDatosLibro) {
         mapaDeDatosLibro.forEach((Integer, DatosLibro) ->
                 System.out.println("[" + Integer + "] " + DatosLibro.titulo().toUpperCase() + " - " + DatosLibro.autores()));
-    }
-
-    public void muestraMapa(Map<Integer, Libro> mapaDeLibros) {
-        mapaDeLibros.forEach((index, libro) -> {
-            System.out.print("[" + index + "] ");
-            muestraLibro(libro);
-        });
     }
 
     public <T> void muestraLista(List<T> lista) {
         lista.stream()
                 .forEach(System.out::println);
     }
-
 
     //Este método muestra el contenido de mapas
     public <T> void muestraGenerico(Map<Integer, T> mapa) {
@@ -126,8 +103,4 @@ public class Muestra {
         }
         System.out.println(" ");
     }
-
-
-
-
 }

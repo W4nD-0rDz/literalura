@@ -18,17 +18,14 @@ public class ConsumeApi {
         try {
             response = client
                     .send(request, HttpResponse.BodyHandlers.ofString());
-        }catch(ConnectException e) { // Captura la excepción específica
-            // Maneja la excepción de ConnectException aquí
-            // Por ejemplo, puedes imprimir un mensaje de error
+        } catch (ConnectException e) {
             System.err.println("Error de conexión: " + e.getMessage());
             throw new RuntimeException("Error de conexión: " + e.getMessage());
-        } catch(IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
-        } catch(InterruptedException e){
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-
         String json = response.body();
         return json;
     }

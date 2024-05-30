@@ -2,11 +2,9 @@ package com.aluracursos.literalura.principal;
 
 import com.aluracursos.literalura.repository.AutorRepository;
 import com.aluracursos.literalura.repository.LibroRepository;
-import com.aluracursos.literalura.service.Conversa;
 import com.aluracursos.literalura.service.LibroService;
 import com.aluracursos.literalura.service.Muestra;
 import org.springframework.stereotype.Component;
-
 import java.util.Scanner;
 
 @Component
@@ -16,7 +14,6 @@ public class Principal {
     Muestra mostrador = new Muestra();
     private LibroRepository repositorio;
     private AutorRepository repositori1;
-
 
     String menuDelUsuario = """
             ********************************
@@ -83,8 +80,7 @@ public class Principal {
                         break;
                 }
             } catch (NumberFormatException e) {
-                System.out.println("Error. El valor ingresado es incorrecto." +
-                        "\nPor favor intente nuevamente.");
+                System.out.println("Error. El valor ingresado es incorrecto. \nPor favor intente nuevamente.");
             }
         } while (option != 0);
     }

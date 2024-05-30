@@ -19,7 +19,6 @@ public class Autor {
     @Column
     LocalDate deceso;
 
-
     public Autor() {
     }
 
@@ -40,8 +39,7 @@ public class Autor {
             this.deceso = Optional.ofNullable(datosAutor.deceso())
                     .map(year -> LocalDate.of(datosAutor.deceso(), 12, 31))
                     .orElse(LocalDate.now());
-
-                // Corregir fechas si están incorrectamente asignadas
+                // Para corregir fechas si están incorrectamente asignadas
             if (datosAutor.nacimiento() > datosAutor.deceso()) {
                 this.nacimiento = LocalDate.of(datosAutor.deceso(), 1, 1);
                 this.deceso = LocalDate.of(datosAutor.nacimiento(), 12, 31);
@@ -68,7 +66,6 @@ public class Autor {
     public int getDecesoYear() {
         return deceso != null ? deceso.getYear() : Integer.MIN_VALUE;
     }
-
 
     @Override
     public String toString() {

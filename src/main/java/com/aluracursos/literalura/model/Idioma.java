@@ -1,5 +1,4 @@
 package com.aluracursos.literalura.model;
-
 import java.util.List;
 
 public enum Idioma {
@@ -103,7 +102,6 @@ public enum Idioma {
         }
         throw new IllegalArgumentException("No existen textos en " + idiomaUsuario + " en la base de datos");
     }
-
 
     public String getSigla() {
         return sigla;
