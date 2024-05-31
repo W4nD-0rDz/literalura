@@ -9,11 +9,13 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
 public class LibroService {
+
 
     @Autowired
     private LibroRepository repositorio;
@@ -24,6 +26,7 @@ public class LibroService {
     private ConvierteDatos conversor = new ConvierteDatos();
     private final Scanner input = new Scanner(System.in);
     private Imprime impresor = new Imprime();
+    private Valida validador = new Valida();
 
     private Datos datos;
     private DatosLibro datosLibro;
@@ -68,7 +71,9 @@ public class LibroService {
                     .map(Libro::new)
                     .ifPresent(libro -> {
                         libro.setAutores(armaListaAutores());
-                        repositorio.save(libro);
+                        if (validador.valida()) {
+                            repositorio.save(libro);
+                        }
                     });
         } catch (DataIntegrityViolationException e) {
             System.out.println("Error de integridad de datos al guardar el libro: " + e.getMessage());
@@ -175,7 +180,11 @@ public class LibroService {
 
     //Opción 6 - filtra libros por idioma
     public List<Libro> buscaLibrosPorIdioma() {
-        return repositorio.obtenerLibrosPorIdioma(selectorDeIdioma());
+        List<Libro> libroPorIdioma = repositorio.obtenerLibrosPorIdioma(selectorDeIdioma());
+        if (libroPorIdioma.isEmpty()) {
+            System.out.println("No hay resultados para esta búsqueda");
+        }
+        return libroPorIdioma;
     }
 
     public Map<Integer, String[]> mapeaIdiomas() {
@@ -212,7 +221,7 @@ public class LibroService {
                 Map<Integer, String[]> mapaIdiomas = mapeaIdiomas();
                 System.out.println("Lista de idiomas que coinciden con las letras ingresadas");
                 impresor.mostrarElemento(mapaIdiomas);
-                System.out.println("Elija el código de la divisa en la lista. Si no se encuentra presione 0");
+                System.out.println("Elija el código del idioma en la lista. Si no se encuentra presione 0");
                 Integer indice = Integer.parseInt(input.nextLine());
                 if (indice != 0) {
                     idioma = Optional.ofNullable(mapaIdiomas.get(indice))
@@ -221,10 +230,10 @@ public class LibroService {
                 }
             } while (idioma == null);
         } catch (NumberFormatException e) {
-            System.out.println("Por favor ingrese el código de la divisa de su elección." +
+            System.out.println("Por favor ingrese el código del idioma de su elección." +
                     "\nSi no la encuentra presione 0.");
         } catch (NullPointerException e) {
-            System.out.println("Disculpas, no se encuentra ninguna divisa conteniendo esas letras." +
+            System.out.println("Disculpas, no se encuentra ningún idioma conteniendo esas letras." +
                     "\nIntente nuevamente.");
         }
         return idioma;
@@ -232,21 +241,27 @@ public class LibroService {
 
     //Opción 7 - lista los 10 libros con mayor cantidad de descargas
     public List<Libro> librosMasDescargados() {
-       return repositorio.top10Libros();
+        return repositorio.top10Libros();
     }
 
     //Opción 8 - Filtra libros por autor
     public List<Libro> buscaLibrosPorAutor() {
-       return repositorio.obtenerLibrosPorAutor(selectorDeAutor());
+        List<Libro> libroPorAutor = repositorio.obtenerLibrosPorAutor(selectorDeAutor());
+        if (libroPorAutor.isEmpty()) {
+            System.out.println("No hay resultados para esta búsqueda");
+        }
+        return libroPorAutor;
     }
 
     public Map<Integer, String> mapeaAutores() {
         List<Autor> listaDeAutores = repositorio1.findAll();
         Map<Integer, String> mapaDeAutores = new HashMap<>();
+        int intentos = 0;
         do {
             System.out.println("Ingrese al menos una letra del nombre del autor");
             String letrasDelNombre = String.valueOf(input.nextLine()).toLowerCase();
-            mapaDeAutores = IntStream.range(0,listaDeAutores.size())
+            intentos++;
+            mapaDeAutores = IntStream.range(0, listaDeAutores.size())
                     .filter(i -> listaDeAutores.get(i).getNombre().toLowerCase().contains(letrasDelNombre))
                     .boxed()
                     .collect(Collectors.toMap(
@@ -256,7 +271,10 @@ public class LibroService {
             if (mapaDeAutores.isEmpty()) {
                 System.out.println("Disculpe, no se han encontrado autores.\nIntente nuevamente.");
             }
-        } while (mapaDeAutores.isEmpty());
+            if (intentos == 3) {
+                System.out.println("Demasiados intentos fallidos. Vuelva a intentar más tarde.");
+            }
+        } while (mapaDeAutores.isEmpty() && intentos < 3);
         return mapaDeAutores;
     }
 

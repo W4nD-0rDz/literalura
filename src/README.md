@@ -3,6 +3,22 @@
 ## Descripción
 Literalura es una aplicación desarrollada integramente en Java y el framework SpringBoot.
 Permite a los usuarios consultar, descargar y almacenar datos de libros disponibles en Gutendex.com, la web API del Proyecto Gutenberg.
+A continuación algunas capturas de pantalla de la aplicación en funcionamiento:
+### Pantalla de inicio
+![Bienvenida y menú del usuario](./imagen/Screenshot_0.jpg)
+### Pantallas de la aplicación en funcionamiento
+![Búsqueda de un libro por una palabra "burgo" y archivado del libro](./imagen/Screenshot_1a.jpg)
+![Búsqueda fallida](./imagen/Screenshot_1b.jpg)
+![s intentos de búsqueda exitosa, pero sin almacenamiento y 1 búsqueda fallida](./imagen/Screenshot_1c.jpg)
+![Lista de libros almacenados en la base de datos](./imagen/Screenshot_2.jpg)
+![Lista de autores existentes en la base de datos](./imagen/Screenshot_3.jpg)
+![Lista de autores existentes en la base de datos, según una fecha](./imagen/Screenshot_4.jpg)
+![Lista de autores existentes en la base de datos, según un nombre](./imagen/Screenshot_5.jpg)
+![Lista de autores existentes en la base de datos, según una fecha](./imagen/Screenshot_4.jpg)
+![Filtrado de libros por idioma exitoso](./imagen/Screenshot_6a.jpg)
+![Filtrado de libros por idioma fallido](./imagen/Screenshot_6b.jpg)
+![Lista de los 10 libros almacenados en la base de datos con mayor número de descargas](./imagen/Screenshot_7.jpg)
+![Búsqueda de libro por autor](./imagen/Screenshot_8.jpg)
 
 ## Instrucciones de Uso
 1. Clona este repositorio a tu pc.
