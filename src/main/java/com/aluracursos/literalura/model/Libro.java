@@ -93,7 +93,7 @@ public class Libro {
 
     @Override
     public String toString() {
-        return "[" + id + "] " + titulo.toUpperCase() + " (" + idioma.getIdiomaEnEspanol() + ") " +
-                "\nAutor(es): " + autores + " - Descargado: " + descargas + " veces";
+        return titulo.toUpperCase() + " (" + idioma.getIdiomaEnEspanol() + ") " +
+                "\nAutor(es): " + autores + "\nDescargado: " + descargas + " veces";
     }
 }

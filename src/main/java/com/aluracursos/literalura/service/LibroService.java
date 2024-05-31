@@ -23,7 +23,7 @@ public class LibroService {
     private ConsumeApi consumidor = new ConsumeApi();
     private ConvierteDatos conversor = new ConvierteDatos();
     private final Scanner input = new Scanner(System.in);
-    private Muestra mostrador = new Muestra();
+    private Imprime impresor = new Imprime();
 
     private Datos datos;
     private DatosLibro datosLibro;
@@ -98,7 +98,7 @@ public class LibroService {
                         System.out.println("La selección no es válida. Por favor, intente nuevamente.");
                     }
                 } else {
-                    mostrador.muestraLibro(listaDatosLibro.get(0));
+                    impresor.mostrarElemento(listaDatosLibro.get(0));
                     datosLibro = listaDatosLibro.get(0);
                     libroEncontrado = true;
                 }
@@ -130,7 +130,7 @@ public class LibroService {
     public DatosLibro eligeLibroDeMapa(Map<Integer, DatosLibro> listaDatosLibros) {
         System.out.println("Elija uno de los siguientes " + listaDatosLibros.size() + " libros." +
                 "\nEn caso que no se encuentre el libro buscado, elija 0.");
-        mostrador.muestraMapaDatosLibro(listaDatosLibros);
+        impresor.mostrarElemento(listaDatosLibros);
         Integer respuesta = Integer.parseInt(input.nextLine());
 
         if (respuesta > 0 && respuesta <= listaDatosLibros.size()) {
@@ -211,7 +211,7 @@ public class LibroService {
             do {
                 Map<Integer, String[]> mapaIdiomas = mapeaIdiomas();
                 System.out.println("Lista de idiomas que coinciden con las letras ingresadas");
-                mostrador.muestraGenerico(mapaIdiomas);
+                impresor.mostrarElemento(mapaIdiomas);
                 System.out.println("Elija el código de la divisa en la lista. Si no se encuentra presione 0");
                 Integer indice = Integer.parseInt(input.nextLine());
                 if (indice != 0) {
@@ -265,7 +265,7 @@ public class LibroService {
         do {
             Map<Integer, String> mapaAutores = mapeaAutores();
             System.out.println("Lista de autores que coinciden con las letras ingresadas");
-            mostrador.muestraGenerico(mapaAutores);
+            impresor.mostrarElemento(mapaAutores);
             System.out.println("Elija el código de un autor de la lista. Si no se encuentra presione 0");
             try {
                 int indice = Integer.parseInt(input.nextLine());

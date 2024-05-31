@@ -3,7 +3,7 @@ package com.aluracursos.literalura.principal;
 import com.aluracursos.literalura.repository.AutorRepository;
 import com.aluracursos.literalura.repository.LibroRepository;
 import com.aluracursos.literalura.service.LibroService;
-import com.aluracursos.literalura.service.Muestra;
+import com.aluracursos.literalura.service.Controla;
 import org.springframework.stereotype.Component;
 import java.util.Scanner;
 
@@ -11,11 +11,12 @@ import java.util.Scanner;
 public class Principal {
     LibroService servicio = new LibroService();
     Scanner input = new Scanner(System.in);
-    Muestra mostrador = new Muestra();
+    Controla mostrador = new Controla();
     private LibroRepository repositorio;
     private AutorRepository repositori1;
 
     String menuDelUsuario = """
+            
             ********************************
             Bienvenido a la Biblioteca Alura
 
@@ -30,13 +31,14 @@ public class Principal {
                         
             0 - salir
             *********************************
+            
             """;
 
-    public Principal(LibroService servicio, LibroRepository repository, AutorRepository repository1, Muestra muestra) {
+    public Principal(LibroService servicio, LibroRepository repository, AutorRepository repository1, Controla controla) {
         this.servicio = servicio;
         this.repositorio = repository;
         this.repositori1 = repository1;
-        this.mostrador = muestra;
+        this.mostrador = controla;
     }
 
     //Menu del usuario
