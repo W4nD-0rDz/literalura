@@ -1,4 +1,5 @@
 # LITERALURA
+![Badge](./imagen/badge%20literalura.png)
 
 ## Descripción
 Literalura es una aplicación desarrollada integramente en Java y el framework SpringBoot.
